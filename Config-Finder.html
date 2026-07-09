@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>یابنده کانفیگ V2Ray</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazir', Tahoma, Arial, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: #334155;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 1100px;
+            padding: 24px;
+            color: #f1f5f9;
+        }
+        h1 {
+            text-align: center;
+            font-weight: normal;
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .subtitle strong {
+            color: #60a5fa;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .tabs button {
+            background: #475569;
+            border: none;
+            color: #94a3b8;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tabs button:hover {
+            background: #64748b;
+            color: #f1f5f9;
+        }
+        .tabs button.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        .tabs button .badge {
+            background: #1e293b;
+            padding: 0 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .tabs button.active .badge {
+            background: #2563eb;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .controls button {
+            background: #475569;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .controls button:hover {
+            background: #64748b;
+            transform: scale(1.02);
+        }
+        .controls button.primary {
+            background: #3b82f6;
+        }
+        .controls button.primary:hover {
+            background: #2563eb;
+        }
+        .controls button.success {
+            background: #22c55e;
+        }
+        .controls button.success:hover {
+            background: #16a34a;
+        }
+        .controls button.danger {
+            background: #ef4444;
+        }
+        .controls button.danger:hover {
+            background: #dc2626;
+        }
+        .controls button.warning {
+            background: #eab308;
+            color: #1e293b;
+        }
+        .controls button.warning:hover {
+            background: #ca8a04;
+        }
+        .item-list {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 12px;
+            max-height: 520px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        .item-card {
+            background: #0f172a;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-right: 3px solid #3b82f6;
+            transition: 0.2s;
+        }
+        .item-card:hover {
+            background: #1e293b;
+            border-right-color: #60a5fa;
+        }
+        .item-card.vless { border-right-color: #8b5cf6; }
+        .item-card.vmess { border-right-color: #22c55e; }
+        .item-card.ss { border-right-color: #f59e0b; }
+        .item-card.all { border-right-color: #ec4899; }
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .item-server {
+            font-weight: bold;
+            font-size: 14px;
+            color: #e2e8f0;
+            direction: ltr;
+            text-align: left;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .item-server .port-badge {
+            background: #334155;
+            padding: 1px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .item-server .type-badge {
+            padding: 1px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .type-badge.vless { background: #8b5cf6; color: white; }
+        .type-badge.vmess { background: #22c55e; color: white; }
+        .type-badge.ss { background: #f59e0b; color: #1e293b; }
+        .type-badge.all { background: #ec4899; color: white; }
+        .item-detail {
+            font-size: 11px;
+            color: #94a3b8;
+            word-break: break-all;
+            direction: ltr;
+            text-align: left;
+        }
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .item-actions button {
+            background: #334155;
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .item-actions button.copy-btn:hover {
+            background: #3b82f6;
+        }
+        .item-actions button.v2-btn {
+            background: #1e5f3a;
+        }
+        .item-actions button.v2-btn:hover {
+            background: #16a34a;
+        }
+        .status {
+            text-align: center;
+            font-size: 14px;
+            color: #94a3b8;
+            padding: 10px;
+            min-height: 45px;
+        }
+        .status .count {
+            color: #f1f5f9;
+            font-weight: bold;
+        }
+        .status .source {
+            color: #60a5fa;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .item-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .item-list::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .item-list::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        .item-list::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .empty-state {
+            text-align: center;
+            color: #64748b;
+            padding: 40px 20px;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px 20px;
+        }
+        .loading .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #334155;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            font-size: 14px;
+            border-right: 4px solid #3b82f6;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 16px; }
+            .item-card { flex-direction: column; align-items: stretch; }
+            .item-actions { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><span>🛡️</span> یابنده کانفیگ V2Ray</h1>
+        <p class="subtitle">دریافت از مخزن <strong>SoliSpirit/v2ray-configs</strong></p>
+
+        <div class="tabs">
+            <button class="active" onclick="switchTab('all')">
+                📦 همه <span class="badge" id="allBadge">0</span>
+            </button>
+            <button onclick="switchTab('vless')">
+                🔵 Vless <span class="badge" id="vlessBadge">0</span>
+            </button>
+            <button onclick="switchTab('vmess')">
+                🟢 VMess <span class="badge" id="vmessBadge">0</span>
+            </button>
+            <button onclick="switchTab('ss')">
+                🟡 SS <span class="badge" id="ssBadge">0</span>
+            </button>
+        </div>
+
+        <!-- تب همه -->
+        <div id="tab-all" class="tab-content active">
+            <div class="controls">
+                <button class="primary" onclick="loadConfigs('all')">🔄 بارگذاری همه</button>
+                <button class="success" onclick="copyAllItems('all')">📋 کپی همه</button>
+                <button class="danger" onclick="clearItems('all')">🗑 پاک کردن</button>
+            </div>
+            <div class="item-list" id="allList"><div class="empty-state"><div class="icon">🔍</div><p>بارگذاری کنید...</p></div></div>
+            <div class="status" id="allStatus">⏳ آماده به کار</div>
+        </div>
+
+        <!-- تب Vless -->
+        <div id="tab-vless" class="tab-content">
+            <div class="controls">
+                <button class="primary" onclick="loadConfigs('vless')">🔄 بارگذاری Vless</button>
+                <button class="success" onclick="copyAllItems('vless')">📋 کپی همه</button>
+                <button class="danger" onclick="clearItems('vless')">🗑 پاک کردن</button>
+            </div>
+            <div class="item-list" id="vlessList"><div class="empty-state"><div class="icon">🔍</div><p>بارگذاری کنید...</p></div></div>
+            <div class="status" id="vlessStatus">⏳ آماده به کار</div>
+        </div>
+
+        <!-- تب VMess -->
+        <div id="tab-vmess" class="tab-content">
+            <div class="controls">
+                <button class="primary" onclick="loadConfigs('vmess')">🔄 بارگذاری VMess</button>
+                <button class="success" onclick="copyAllItems('vmess')">📋 کپی همه</button>
+                <button class="danger" onclick="clearItems('vmess')">🗑 پاک کردن</button>
+            </div>
+            <div class="item-list" id="vmessList"><div class="empty-state"><div class="icon">🔍</div><p>بارگذاری کنید...</p></div></div>
+            <div class="status" id="vmessStatus">⏳ آماده به کار</div>
+        </div>
+
+        <!-- تب SS -->
+        <div id="tab-ss" class="tab-content">
+            <div class="controls">
+                <button class="primary" onclick="loadConfigs('ss')">🔄 بارگذاری SS</button>
+                <button class="success" onclick="copyAllItems('ss')">📋 کپی همه</button>
+                <button class="danger" onclick="clearItems('ss')">🗑 پاک کردن</button>
+            </div>
+            <div class="item-list" id="ssList"><div class="empty-state"><div class="icon">🔍</div><p>بارگذاری کنید...</p></div></div>
+            <div class="status" id="ssStatus">⏳ آماده به کار</div>
+        </div>
+
+        <div class="footer">
+            <span>📦 منبع: <a href="https://github.com/SoliSpirit/v2ray-configs" target="_blank">SoliSpirit/v2ray-configs</a></span>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // =============================================
+        // 1. تنظیمات
+        // =============================================
+        const SOURCES = {
+            all: 'https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/all_configs.txt',
+            vless: 'https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/vless.txt',
+            vmess: 'https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/vmess.txt',
+            ss: 'https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/refs/heads/main/Protocols/ss.txt'
+        };
+
+        const STORAGE_KEYS = {
+            all: 'v2ray_all_list',
+            vless: 'v2ray_vless_list',
+            vmess: 'v2ray_vmess_list',
+            ss: 'v2ray_ss_list'
+        };
+
+        let allItems = { all: [], vless: [], vmess: [], ss: [] };
+        let isLoading = false;
+
+        // =============================================
+        // 2. توابع تب
+        // =============================================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.querySelector(`.tabs button[onclick="switchTab('${tab}')"]`).classList.add('active');
+        }
+
+        // =============================================
+        // 3. بارگذاری کانفیگ‌ها
+        // =============================================
+        async function loadConfigs(type) {
+            if (isLoading) return;
+            isLoading = true;
+
+            const listId = type === 'all' ? 'allList' : `${type}List`;
+            const statusId = type === 'all' ? 'allStatus' : `${type}Status`;
+            const listElement = document.getElementById(listId);
+            const statusElement = document.getElementById(statusId);
+
+            listElement.innerHTML = `<div class="loading"><div class="spinner"></div><p>در حال دریافت...</p></div>`;
+            statusElement.innerHTML = '⏳ در حال دریافت...';
+
+            try {
+                const url = SOURCES[type];
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const text = await response.text();
+                const lines = text.split('\n').filter(line => line.trim() !== '');
+                
+                const items = parseConfigLines(lines, type);
+                if (items.length === 0) throw new Error('هیچ کانفیگ معتبری یافت نشد');
+
+                allItems[type] = items;
+                localStorage.setItem(STORAGE_KEYS[type], JSON.stringify(items));
+                renderItems(type, items);
+                updateBadges();
+                statusElement.innerHTML = `✅ <span class="count">${items.length}</span> کانفیگ ${type.toUpperCase()} بارگذاری شد.`;
+
+            } catch (error) {
+                console.error('خطا:', error);
+                const saved = localStorage.getItem(STORAGE_KEYS[type]);
+                if (saved) {
+                    try {
+                        const items = JSON.parse(saved);
+                        if (items.length > 0) {
+                            allItems[type] = items;
+                            renderItems(type, items);
+                            updateBadges();
+                            statusElement.innerHTML = `⚠️ <span class="count">${items.length}</span> کانفیگ از حافظه.`;
+                            isLoading = false;
+                            return;
+                        }
+                    } catch (e) {}
+                }
+                // داده نمونه
+                const fallback = getFallbackItems(type);
+                allItems[type] = fallback;
+                renderItems(type, fallback);
+                updateBadges();
+                statusElement.innerHTML = `⚠️ خطا در دریافت، از داده‌های نمونه استفاده شد.`;
+            }
+            isLoading = false;
+        }
+
+        // =============================================
+        // 4. تجزیه خطوط
+        // =============================================
+        function parseConfigLines(lines, type) {
+            const result = [];
+            const seen = new Set();
+
+            for (const line of lines) {
+                const clean = line.trim();
+                if (!clean) continue;
+
+                // تشخیص نوع بر اساس محتوا
+                let itemType = type;
+                if (type === 'all') {
+                    if (clean.startsWith('vless://')) itemType = 'vless';
+                    else if (clean.startsWith('vmess://')) itemType = 'vmess';
+                    else if (clean.startsWith('ss://')) itemType = 'ss';
+                    else if (clean.startsWith('trojan://')) continue; // پشتیبانی نمی‌کنیم
+                    else continue;
+                }
+
+                // استخراج سرور و پورت
+                let server = 'نامشخص';
+                let port = '?';
+                let uuid = '';
+                let display = clean.substring(0, 60) + '...';
+
+                if (itemType === 'vless' || itemType === 'all' && clean.startsWith('vless://')) {
+                    const match = clean.match(/vless:\/\/([^@]+)@([^:]+):(\d+)/);
+                    if (match) {
+                        uuid = match[1];
+                        server = match[2];
+                        port = match[3];
+                    }
+                    const cleanLink = clean.replace(/#.*$/, '');
+                    const key = `${server}:${port}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        result.push({ 
+                            type: 'vless', 
+                            server, 
+                            port, 
+                            uuid, 
+                            fullLink: clean,
+                            display: `vless://${uuid.substring(0, 8)}...@${server}:${port}`
+                        });
+                    }
+                }
+                else if (itemType === 'vmess' || type === 'all' && clean.startsWith('vmess://')) {
+                    try {
+                        const base64 = clean.replace('vmess://', '');
+                        const decoded = JSON.parse(atob(base64));
+                        server = decoded.add || decoded.host || 'نامشخص';
+                        port = decoded.port || '?';
+                        uuid = decoded.id || '';
+                        const key = `${server}:${port}`;
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            result.push({ 
+                                type: 'vmess', 
+                                server, 
+                                port, 
+                                uuid, 
+                                fullLink: clean,
+                                display: `vmess://${server}:${port}`
+                            });
+                        }
+                    } catch (e) {
+                        // خطا در دیکد - ignore
+                    }
+                }
+                else if (itemType === 'ss' || type === 'all' && clean.startsWith('ss://')) {
+                    const match = clean.match(/ss:\/\/([^@]+)@([^:]+):(\d+)/);
+                    if (match) {
+                        server = match[2];
+                        port = match[3];
+                    } else {
+                        // فرمت ss://base64#name
+                        try {
+                            const base64Part = clean.replace('ss://', '').split('#')[0].split('@');
+                            if (base64Part.length === 2) {
+                                const decoded = atob(base64Part[0]);
+                                const parts = decoded.split(':');
+                                server = base64Part[1].split(':')[0] || 'نامشخص';
+                                port = base64Part[1].split(':')[1] || '?';
+                            }
+                        } catch (e) {}
+                    }
+                    const key = `${server}:${port}`;
+                    if (!seen.has(key) && server !== 'نامشخص') {
+                        seen.add(key);
+                        result.push({ 
+                            type: 'ss', 
+                            server, 
+                            port, 
+                            uuid: '', 
+                            fullLink: clean,
+                            display: `ss://${server}:${port}`
+                        });
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // =============================================
+        // 5. رندر آیتم‌ها
+        // =============================================
+        function renderItems(type, items) {
+            const listId = type === 'all' ? 'allList' : `${type}List`;
+            const listElement = document.getElementById(listId);
+
+            if (!items || items.length === 0) {
+                listElement.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>هیچ کانفیگی یافت نشد.</p></div>`;
+                return;
+            }
+
+            let html = '';
+            const typeClass = type === 'all' ? 'all' : type;
+            const typeLabel = type === 'all' ? 'همه' : type.toUpperCase();
+
+            items.forEach((item, index) => {
+                const typeBadgeClass = item.type || type;
+                const typeLabelShort = (item.type || type).toUpperCase();
+                
+                html += `
+                    <div class="item-card ${typeBadgeClass}">
+                        <div class="item-info">
+                            <span class="item-server">
+                                🌐 ${item.server}
+                                <span class="port-badge">پورت ${item.port}</span>
+                                <span class="type-badge ${typeBadgeClass}">${typeLabelShort}</span>
+                            </span>
+                            <span class="item-detail">${item.display || item.fullLink.substring(0, 80)}${item.fullLink.length > 80 ? '...' : ''}</span>
+                        </div>
+                        <div class="item-actions">
+                            <button class="copy-btn" onclick="copyItem('${item.fullLink.replace(/'/g, "\\'")}')">📋 کپی</button>
+                            <button class="v2-btn" onclick="copyItem('${item.fullLink.replace(/'/g, "\\'")}')">📥 دریافت</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listElement.innerHTML = html;
+            updateBadges();
+        }
+
+        // =============================================
+        // 6. آمار
+        // =============================================
+        function updateBadges() {
+            ['all', 'vless', 'vmess', 'ss'].forEach(type => {
+                const count = allItems[type] ? allItems[type].length : 0;
+                document.getElementById(`${type}Badge`).textContent = count;
+            });
+        }
+
+        // =============================================
+        // 7. توابع کمکی
+        // =============================================
+        function copyItem(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast('✅ کپی شد!'))
+                    .catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('✅ کپی شد!');
+            } catch (e) {
+                showToast('❌ کپی نشد. دستی کپی کنید.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copyAllItems(type) {
+            const items = allItems[type] || [];
+            if (items.length === 0) {
+                showToast('⚠️ هیچ کانفیگی موجود نیست!');
+                return;
+            }
+            let text = items.map(i => i.fullLink).join('\n');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast(`✅ ${items.length} کانفیگ کپی شد!`))
+                    .catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+                showToast(`✅ ${items.length} کانفیگ کپی شد!`);
+            }
+        }
+
+        function clearItems(type) {
+            if (!confirm('آیا مطمئن هستید؟')) return;
+            localStorage.removeItem(STORAGE_KEYS[type]);
+            allItems[type] = [];
+            renderItems(type, []);
+            document.getElementById(`${type}Status`).innerHTML = '🗑 لیست پاک شد.';
+            updateBadges();
+        }
+
+        // =============================================
+        // 8. داده‌های نمونه
+        // =============================================
+        function getFallbackItems(type) {
+            const sample = {
+                vless: [
+                    { type: 'vless', server: '104.16.72.41', port: '2096', uuid: '06b65903-406d-4a41-8400-6fd5c0ee7798', fullLink: 'vless://06b65903-406d-4a41-8400-6fd5c0ee7798@104.16.72.41:2096?path=%2Fproxyip&security=tls&encryption=none&insecure=0&host=sp.linuxdododo.ccwu.cc&fp=chrome&type=ws&allowInsecure=0&sni=sp.linuxdododo.ccwu.cc#Github : Parsa232121', display: 'vless://06b65903...@104.16.72.41:2096' },
+                    { type: 'vless', server: '188.114.97.6', port: '443', uuid: '14b59caf-a196-4ec2-8c70-c7b388062f5b', fullLink: 'vless://14b59caf-a196-4ec2-8c70-c7b388062f5b@188.114.97.6:443?encryption=none&type=ws&security=tls&path=%2Frdfgtws&host=vangoghhh.info&sni=vangoghhh.info&fp=chrome&insecure=0&allowInsecure=0#Github : Parsa232121', display: 'vless://14b59caf...@188.114.97.6:443' }
+                ],
+                vmess: [
+                    { type: 'vmess', server: 'ray.skymirror.cc', port: '443', uuid: 'c99929e1-9c82-4a33-d11e-f177247b8f63', fullLink: 'vmess://eyJhZGQiOiAicmF5LnNreW1pcnJvci5jYyIsICJhaWQiOiAwLCAiaWQiOiAiYzk5OTI5ZTEtOWM4Mi00YTMzLWQxMWUtZjE3NzI0N2I4ZjYzIiwgIm5ldCI6ICJ3cyIsICJwYXRoIjogIi8iLCAicG9ydCI6IDQ0MywgInBzIjogIlx1ZDgzZFx1ZGQyNUpvaW4rVGVsZWdyYW06QEZhcmFoX1ZQTlx1ZDgzZFx1ZGZlMyIsICJzbmkiOiAicmF5LnNreW1pcnJvci5jYyIsICJ0bHMiOiAidGxzIiwgInR5cGUiOiAiIiwgInYiOiAiMiJ9', display: 'vmess://ray.skymirror.cc:443' }
+                ],
+                ss: [
+                    { type: 'ss', server: '172.93.146.210', port: '49126', uuid: '', fullLink: 'ss://YWVzLTI1Ni1nY206d3JDYUd0clViemVScVFMZGM4S21rM05k@172.93.146.210:49126#Github : Parsa232121', display: 'ss://172.93.146.210:49126' }
+                ]
+            };
+            if (type === 'all') {
+                return [...sample.vless, ...sample.vmess, ...sample.ss];
+            }
+            return sample[type] || [];
+        }
+
+        // =============================================
+        // 9. Toast
+        // =============================================
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // =============================================
+        // 10. بارگذاری خودکار
+        // =============================================
+        window.onload = function() {
+            ['all', 'vless', 'vmess', 'ss'].forEach(type => {
+                const saved = localStorage.getItem(STORAGE_KEYS[type]);
+                if (saved) {
+                    try {
+                        const items = JSON.parse(saved);
+                        if (items.length > 0) {
+                            allItems[type] = items;
+                            renderItems(type, items);
+                            document.getElementById(`${type}Status`).innerHTML = `📌 <span class="count">${items.length}</span> کانفیگ از حافظه.`;
+                        }
+                    } catch (e) {}
+                }
+                // اگر داده نبود، نمونه
+                if (allItems[type].length === 0) {
+                    const fallback = getFallbackItems(type);
+                    allItems[type] = fallback;
+                    renderItems(type, fallback);
+                    document.getElementById(`${type}Status`).innerHTML = `📌 <span class="count">${fallback.length}</span> کانفیگ نمونه.`;
+                }
+            });
+            updateBadges();
+        };
+    </script>
+
+</body>
+</html>
